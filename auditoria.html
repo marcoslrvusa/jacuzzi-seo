@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auditoria de Dados — Jacuzzi Brasil</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #161616;
+    --bg3: #1a1a1a;
+    --surface: #1e1e1e;
+    --surface2: #252525;
+    --border: #2a2a2a;
+    --border2: #333;
+    --text: #e8e6e3;
+    --text2: #999;
+    --text3: #666;
+    --red: #ed1c24;
+    --red2: #ff4757;
+    --green: #2ecc71;
+    --green2: #00b894;
+    --gold: #c9a84c;
+    --gold2: #e6c566;
+    --blue: #3498db;
+    --orange: #e67e22;
+    --purple: #9b59b6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .topbar-logo {
+    height: 28px;
+    opacity: 0.9;
+  }
+
+  .topbar-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border2);
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .topbar-date {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  .header {
+    margin-bottom: 40px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .badge-red { background: rgba(237,28,36,0.12); border: 1px solid rgba(237,28,36,0.3); color: var(--red2); }
+  .badge-green { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); color: var(--green); }
+  .badge-gold { background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3); color: var(--gold); }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: var(--text2);
+    font-weight: 400;
+  }
+
+  .section {
+    margin-bottom: 48px;
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text3);
+    margin-bottom: 20px;
+  }
+
+  /* TABLE STYLES */
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg2);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  thead th {
+    background: var(--surface2);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--text2);
+    border-bottom: 2px solid var(--border2);
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  tbody td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  tbody tr:hover { background: var(--surface); }
+
+  .file-name {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--gold2);
+    word-break: break-all;
+    max-width: 280px;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .tag-q1 { background: rgba(52,152,219,0.15); color: #5dade2; }
+  .tag-q2 { background: rgba(155,89,182,0.15); color: #c39bd3; }
+  .tag-q3 { background: rgba(230,126,34,0.15); color: #f0b27a; }
+  .tag-gsc { background: rgba(46,204,113,0.12); color: var(--green); }
+  .tag-cwv { background: rgba(237,28,36,0.1); color: var(--red2); }
+  .tag-dup { background: rgba(102,102,102,0.2); color: #888; }
+  .tag-unique { background: rgba(201,168,76,0.12); color: var(--gold2); }
+  .tag-rd { background: rgba(230,126,34,0.12); color: var(--orange); }
+
+  .metric-val {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .metric-label {
+    font-size: 10px;
+    color: var(--text3);
+  }
+
+  .dup-note {
+    font-size: 11px;
+    color: var(--text3);
+    font-style: italic;
+  }
+
+  .highlight-row { background: rgba(237,28,36,0.04) !important; }
+  .highlight-row td { border-bottom-color: rgba(237,28,36,0.2); }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .summary-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .summary-card .label {
+    font-size: 11px;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .summary-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .summary-card .detail {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  .footnote {
+    margin-top: 40px;
+    padding: 16px 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.7;
+  }
+
+  .footnote strong { color: var(--text2); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span style="font-size:14px;font-weight:700;color:var(--red);">V4</span>
+    <div class="topbar-divider"></div>
+    <span style="font-size:13px;font-weight:600;color:var(--text2);">Auditoria de Dados</span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-date">AGO 2026</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <span class="badge badge-red">Auditoria</span>
+    <h1>Auditoria de Dados — Jacuzzi Brasil</h1>
+    <p class="subtitle">Mapeamento completo de fontes, períodos e valores extraídos dos CSVs GA4, GSC e CrUX</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="label">Total de arquivos</div>
+      <div class="value">43</div>
+      <div class="detail">CSVs + ZIPs exportados</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Arquivos únicos</div>
+      <div class="value" style="color:var(--green);">19</div>
+      <div class="detail">Dados efetivamente disponíveis</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Duplicatas</div>
+      <div class="value" style="color:var(--red);">24</div>
+      <div class="detail">Cópias idênticas dos únicos</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Períodos GA4</div>
+      <div class="value">2</div>
+      <div class="detail">Q1 (Jan-Mar) e Q2 (Abr-Jun)</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Q3 nos CSVs</div>
+      <div class="value" style="color:var(--red);">Parcial</div>
+      <div class="detail">Só leads semanais (05/07–15/08)</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">RD Station</div>
+      <div class="value" style="color:var(--orange);">25</div>
+      <div class="detail">Contatos da segmentação "Oportunidades"</div>
+    </div>
+  </div>
+
+  <!-- SECTION: GA4 TRAFEGO -->
+  <div class="section">
+    <h2 class="section-title">1. GA4 — Aquisição de Tráfego (por sessão)</h2>
+    <p class="section-desc">Sessões agrupadas por canal de aquisição. Métricas: sessões, sessões engajadas, taxa de engajamento, tempo médio, eventos/sessão.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Arquivo</th>
+            <th>Período</th>
+            <th>Status</th>
+            <th>Canal</th>
+            <th>Sessões</th>
+            <th>Sessões Engajadas</th>
+            <th>Taxa Engaj.</th>
+            <th>Tempo Médio (s)</th>
+            <th>Eventos/Sessão</th>
+            <th>Eventos Principais</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Q1 -->
+          <tr>
+            <td class="file-name" rowspan="9">Aquisição_de_tráfego_..._padrão.csv</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td><span class="tag tag-unique">Único</span></td>
+            <td>Organic Search</td>
+            <td class="metric-val">35.747</td>
+            <td class="metric-val">25.876</td>
+            <td class="metric-val">72,4%</td>
+            <td class="metric-val">69,7</td>
+            <td class="metric-val">10,3</td>
+            <td class="metric-val">6.899</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Direct</td>
+            <td class="metric-val">6.430</td>
+            <td class="metric-val">3.785</td>
+            <td class="metric-val">58,9%</td>
+            <td class="metric-val">59,5</td>
+            <td class="metric-val">8,2</td>
+            <td class="metric-val">839</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Referral</td>
+            <td class="metric-val">639</td>
+            <td class="metric-val">371</td>
+            <td class="metric-val">58,1%</td>
+            <td class="metric-val">41,4</td>
+            <td class="metric-val">8,9</td>
+            <td class="metric-val">59</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Organic Social</td>
+            <td class="metric-val">627</td>
+            <td class="metric-val">423</td>
+            <td class="metric-val">67,5%</td>
+            <td class="metric-val">45,6</td>
+            <td class="metric-val">9,9</td>
+            <td class="metric-val">15</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Unassigned</td>
+            <td class="metric-val">158</td>
+            <td class="metric-val">74</td>
+            <td class="metric-val">46,8%</td>
+            <td class="metric-val">51,7</td>
+            <td class="metric-val">8,8</td>
+            <td class="metric-val">40</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Email</td>
+            <td class="metric-val">8</td>
+            <td class="metric-val">5</td>
+            <td class="metric-val">62,5%</td>
+            <td class="metric-val">26,9</td>
+            <td class="metric-val">4,4</td>
+            <td class="metric-val">0</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Organic Video</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">100%</td>
+            <td class="metric-val">36,0</td>
+            <td class="metric-val">14,5</td>
+            <td class="metric-val">1</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Paid Search</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">100%</td>
+            <td class="metric-val">18,0</td>
+            <td class="metric-val">3,5</td>
+            <td class="metric-val">0</td>
+          </tr>
+          <tr style="border-bottom:2px solid var(--border2);">
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Organic Shopping</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">0</td>
+            <td class="metric-val">0%</td>
+            <td class="metric-val">8,0</td>
+            <td class="metric-val">3,0</td>
+            <td class="metric-val">0</td>
+          </tr>
+          <!-- Q2 -->
+          <tr>
+            <td class="file-name" rowspan="9">Aquisição_de_tráfego_..._padrão (3).csv</td>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td><span class="tag tag-unique">Único</span></td>
+            <td>Organic Search</td>
+            <td class="metric-val">30.212</td>
+            <td class="metric-val">20.490</td>
+            <td class="metric-val">67,8%</td>
+            <td class="metric-val">66,7</td>
+            <td class="metric-val">10,0</td>
+            <td class="metric-val">6.214</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Direct</td>
+            <td class="metric-val">6.673</td>
+            <td class="metric-val">3.575</td>
+            <td class="metric-val">53,6%</td>
+            <td class="metric-val">49,3</td>
+            <td class="metric-val">7,5</td>
+            <td class="metric-val">758</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Organic Social</td>
+            <td class="metric-val">622</td>
+            <td class="metric-val">321</td>
+            <td class="metric-val">51,6%</td>
+            <td class="metric-val">47,4</td>
+            <td class="metric-val">9,0</td>
+            <td class="metric-val">1</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Referral</td>
+            <td class="metric-val">413</td>
+            <td class="metric-val">243</td>
+            <td class="metric-val">58,8%</td>
+            <td class="metric-val">49,3</td>
+            <td class="metric-val">9,1</td>
+            <td class="metric-val">87</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Paid Social</td>
+            <td class="metric-val">246</td>
+            <td class="metric-val">29</td>
+            <td class="metric-val">11,8%</td>
+            <td class="metric-val">3,1</td>
+            <td class="metric-val">3,7</td>
+            <td class="metric-val">0</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Unassigned</td>
+            <td class="metric-val">172</td>
+            <td class="metric-val">69</td>
+            <td class="metric-val">40,1%</td>
+            <td class="metric-val">41,0</td>
+            <td class="metric-val">7,7</td>
+            <td class="metric-val">16</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td style="color:var(--green);font-weight:600;">AI Assistant</td>
+            <td class="metric-val">103</td>
+            <td class="metric-val">78</td>
+            <td class="metric-val">75,7%</td>
+            <td class="metric-val">62,6</td>
+            <td class="metric-val">10,0</td>
+            <td class="metric-val">7</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Email</td>
+            <td class="metric-val">9</td>
+            <td class="metric-val">4</td>
+            <td class="metric-val">44,4%</td>
+            <td class="metric-val">50,1</td>
+            <td class="metric-val">5,0</td>
+            <td class="metric-val">0</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Paid Search</td>
+            <td class="metric-val">7</td>
+            <td class="metric-val">5</td>
+            <td class="metric-val">71,4%</td>
+            <td class="metric-val">77,0</td>
+            <td class="metric-val">15,7</td>
+            <td class="metric-val">5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION: GA4 LEADS -->
+  <div class="section">
+    <h2 class="section-title">2. GA4 — Aquisição de Leads (por primeiro usuário)</h2>
+    <p class="section-desc">Novos leads agrupados por canal de origem do primeiro usuário.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Arquivo</th>
+            <th>Período</th>
+            <th>Status</th>
+            <th>Canal</th>
+            <th>Novos Leads</th>
+            <th>Taxa Conversão</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="file-name" rowspan="8">Aquisição_de_leads_..._padrão.csv</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td><span class="tag tag-unique">Único</span></td>
+            <td>Organic Search</td>
+            <td class="metric-val">5.055</td>
+            <td class="metric-val">16,6%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Direct</td>
+            <td class="metric-val">731</td>
+            <td class="metric-val">13,6%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Organic Social</td>
+            <td class="metric-val">38</td>
+            <td class="metric-val">1,0%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Referral</td>
+            <td class="metric-val">20</td>
+            <td class="metric-val">9,8%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Unassigned</td>
+            <td class="metric-val">14</td>
+            <td class="metric-val">13,4%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Email</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">20,0%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Organic Video</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">50,0%</td>
+          </tr>
+          <tr style="border-bottom:2px solid var(--border2);">
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Paid Search</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">50,0%</td>
+          </tr>
+          <tr>
+            <td class="file-name" rowspan="9">Aquisição_de_leads_..._padrão (1).csv</td>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td><span class="tag tag-unique">Único</span></td>
+            <td>Organic Search</td>
+            <td class="metric-val">4.401</td>
+            <td class="metric-val">17,6%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Direct</td>
+            <td class="metric-val">711</td>
+            <td class="metric-val">12,5%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Referral</td>
+            <td class="metric-val">32</td>
+            <td class="metric-val">10,5%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Organic Social</td>
+            <td class="metric-val">24</td>
+            <td class="metric-val">0,3%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Unassigned</td>
+            <td class="metric-val">18</td>
+            <td class="metric-val">13,3%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td style="color:var(--green);font-weight:600;">AI Assistant</td>
+            <td class="metric-val">16</td>
+            <td class="metric-val">6,9%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Paid Search</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">40,0%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Email</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">16,7%</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Organic Video</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">0%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION: GA4 USUÁRIOS -->
+  <div class="section">
+    <h2 class="section-title">3. GA4 — Aquisição de Usuários (por primeiro usuário)</h2>
+    <p class="section-desc">Total de usuários, novos e recorrentes, com tempo médio de engajamento e eventos principais.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Arquivo</th>
+            <th>Período</th>
+            <th>Status</th>
+            <th>Canal</th>
+            <th>Total Usuários</th>
+            <th>Novos</th>
+            <th>Recorrentes</th>
+            <th>Tempo Médio (s)</th>
+            <th>Eventos Principais</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="file-name" rowspan="8">Aquisição_de_usuários_..._padrão.csv</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td><span class="tag tag-unique">Único</span></td>
+            <td>Organic Search</td>
+            <td class="metric-val">22.672</td>
+            <td class="metric-val">21.122</td>
+            <td class="metric-val">6.328</td>
+            <td class="metric-val">108,4</td>
+            <td class="metric-val">6.699</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Direct</td>
+            <td class="metric-val">4.008</td>
+            <td class="metric-val">3.695</td>
+            <td class="metric-val">1.189</td>
+            <td class="metric-val">110,8</td>
+            <td class="metric-val">1.077</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Organic Social</td>
+            <td class="metric-val">587</td>
+            <td class="metric-val">582</td>
+            <td class="metric-val">24</td>
+            <td class="metric-val">47,9</td>
+            <td class="metric-val">11</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Referral</td>
+            <td class="metric-val">184</td>
+            <td class="metric-val">172</td>
+            <td class="metric-val">43</td>
+            <td class="metric-val">66,1</td>
+            <td class="metric-val">33</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Unassigned</td>
+            <td class="metric-val">67</td>
+            <td class="metric-val">66</td>
+            <td class="metric-val">9</td>
+            <td class="metric-val">73,6</td>
+            <td class="metric-val">30</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Email</td>
+            <td class="metric-val">5</td>
+            <td class="metric-val">3</td>
+            <td class="metric-val">3</td>
+            <td class="metric-val">162,6</td>
+            <td class="metric-val">1</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Organic Video</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">0</td>
+            <td class="metric-val">36,0</td>
+            <td class="metric-val">1</td>
+          </tr>
+          <tr style="border-bottom:2px solid var(--border2);">
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td></td>
+            <td>Paid Search</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">88,5</td>
+            <td class="metric-val">1</td>
+          </tr>
+          <tr>
+            <td class="file-name" rowspan="10">Aquisição_de_usuários_..._padrão (2).csv</td>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td><span class="tag tag-unique">Único</span></td>
+            <td>Organic Search</td>
+            <td class="metric-val">18.292</td>
+            <td class="metric-val">16.813</td>
+            <td class="metric-val">5.554</td>
+            <td class="metric-val">107,6</td>
+            <td class="metric-val">5.977</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Direct</td>
+            <td class="metric-val">4.176</td>
+            <td class="metric-val">3.848</td>
+            <td class="metric-val">1.181</td>
+            <td class="metric-val">94,3</td>
+            <td class="metric-val">1.029</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Organic Social</td>
+            <td class="metric-val">604</td>
+            <td class="metric-val">602</td>
+            <td class="metric-val">16</td>
+            <td class="metric-val">48,7</td>
+            <td class="metric-val">4</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Paid Social</td>
+            <td class="metric-val">241</td>
+            <td class="metric-val">253</td>
+            <td class="metric-val">2</td>
+            <td class="metric-val">3,1</td>
+            <td class="metric-val">0</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Referral</td>
+            <td class="metric-val">192</td>
+            <td class="metric-val">179</td>
+            <td class="metric-val">52</td>
+            <td class="metric-val">73,4</td>
+            <td class="metric-val">34</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td style="color:var(--green);font-weight:600;">AI Assistant</td>
+            <td class="metric-val">87</td>
+            <td class="metric-val">86</td>
+            <td class="metric-val">15</td>
+            <td class="metric-val">79,2</td>
+            <td class="metric-val">9</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Unassigned</td>
+            <td class="metric-val">75</td>
+            <td class="metric-val">73</td>
+            <td class="metric-val">9</td>
+            <td class="metric-val">72,0</td>
+            <td class="metric-val">22</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Email</td>
+            <td class="metric-val">6</td>
+            <td class="metric-val">5</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">351,8</td>
+            <td class="metric-val">6</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Paid Search</td>
+            <td class="metric-val">5</td>
+            <td class="metric-val">4</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">146,0</td>
+            <td class="metric-val">7</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-q2">Q2</span></td>
+            <td></td>
+            <td>Organic Video</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">1</td>
+            <td class="metric-val">0</td>
+            <td class="metric-val">284,0</td>
+            <td class="metric-val">0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION: DUPLICATAS -->
+  <div class="section">
+    <h2 class="section-title">4. Duplicatas Identificadas</h2>
+    <p class="section-desc">Arquivos com conteúdo 100% idêntico (mesmo checksum MD5). Foram exportados múltiplas vezes sem alteração.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Grupo</th>
+            <th>Arquivo base</th>
+            <th>Cópias</th>
+            <th>Período</th>
+            <th>Checksum</th>
+            <th>Diferença</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Eventos</td>
+            <td class="file-name">Eventos_Nome_do_evento.csv</td>
+            <td>(1), (2)</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">dfcb02a7</td>
+            <td style="color:var(--green);">Nenhuma — idênticos</td>
+          </tr>
+          <tr>
+            <td>Páginas de destino</td>
+            <td class="file-name">Página_de_destino_...csv</td>
+            <td>(1), (2)</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">5530cbfa</td>
+            <td style="color:var(--green);">Nenhuma — idênticos</td>
+          </tr>
+          <tr>
+            <td>Páginas e telas</td>
+            <td class="file-name">Páginas_e_telas_...csv</td>
+            <td>(1), (2)</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">7836b69d</td>
+            <td style="color:var(--green);">Nenhuma — idênticos</td>
+          </tr>
+          <tr>
+            <td>Aquisição de tráfego</td>
+            <td class="file-name">Aquisição_de_tráfego_...csv</td>
+            <td>(1), (2)</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">7b055579</td>
+            <td style="color:var(--green);">Nenhuma — idênticos</td>
+          </tr>
+          <tr>
+            <td>Aquisição de usuários</td>
+            <td class="file-name">Aquisição_de_usuários_...csv</td>
+            <td>(1)</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">e80ebb67</td>
+            <td style="color:var(--green);">Nenhuma — idênticos</td>
+          </tr>
+          <tr>
+            <td>Coortes</td>
+            <td class="file-name">Coortes_...csv</td>
+            <td>(1)</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">d41d8cd9</td>
+            <td style="color:var(--green);">Nenhuma — idênticos</td>
+          </tr>
+          <tr>
+            <td>Geração de leads</td>
+            <td class="file-name">Visão_geral_da_geração_de_leads.csv</td>
+            <td>(1)</td>
+            <td><span class="tag tag-q1">Q1</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">—</td>
+            <td style="color:var(--orange);">Diferença: base = "Novos usuários", (1) = "Usuários ativos"</td>
+          </tr>
+          <tr>
+            <td>CWV</td>
+            <td class="file-name">core-web-vitals-2026-08-20.zip</td>
+            <td>(1), (2)</td>
+            <td><span class="tag tag-cwv">CrUX</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">—</td>
+            <td style="color:var(--green);">Duplicatas do mesmo export</td>
+          </tr>
+          <tr>
+            <td>Coverage</td>
+            <td class="file-name">Coverage-2026-08-20.zip</td>
+            <td>(1)</td>
+            <td><span class="tag tag-gsc">GSC</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">—</td>
+            <td style="color:var(--green);">Duplicata do mesmo export</td>
+          </tr>
+          <tr>
+            <td>Performance Search</td>
+            <td class="file-name">Performance-on-Search-2026-08-20.zip</td>
+            <td>(1), (2)</td>
+            <td><span class="tag tag-gsc">GSC</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">—</td>
+            <td style="color:var(--green);">Duplicatas do mesmo export</td>
+          </tr>
+          <tr>
+            <td>AI Features</td>
+            <td class="file-name">Performance-on-Search-Generative-AI-Features-2026-08-20.zip</td>
+            <td>(1)</td>
+            <td><span class="tag tag-gsc">GSC</span></td>
+            <td style="font-family:monospace;font-size:10px;color:var(--text3);">—</td>
+            <td style="color:var(--green);">Duplicata do mesmo export</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION: FONTES EXTERNAS -->
+  <div class="section">
+    <h2 class="section-title">5. Fontes Externas (não nos CSVs)</h2>
+    <p class="section-desc">Dados utilizados no dashboard que NÃO foram extraídos dos arquivos exportados nesta pasta.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Fonte</th>
+            <th>Dados</th>
+            <th>Período</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight-row">
+            <td style="font-weight:600;color:var(--red);">Q3* GA4</td>
+            <td>Sessões, leads, tráfego por canal, participação da busca (71,9%)</td>
+            <td>01/07 – 18/08/2026</td>
+            <td><span class="tag tag-dup">NÃO NOS CSVs</span></td>
+          </tr>
+          <tr class="highlight-row">
+            <td style="font-weight:600;color:var(--red);">Q3* GSC</td>
+            <td>Impressões, cliques, CTR, posição, palavras-chave</td>
+            <td>01/07 – 18/08/2026</td>
+            <td><span class="tag tag-dup">NÃO NOS CSVs</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--orange);">RD Station</td>
+            <td>25 vendas, R$ 812K receita, ticket médio, origem por canal</td>
+            <td>Histórico total (sem filtro de data)</td>
+            <td><span class="tag tag-rd">MCP API</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--blue);">CrUX (live)</td>
+            <td>CWV: LCP, INP, CLS — 298 URLs monitoradas</td>
+            <td>Últimas 25 semanas</td>
+            <td><span class="tag tag-cwv">API CrUX</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--purple);">GSC (live)</td>
+            <td>AIO: 0→43 palavras-chave</td>
+            <td>Até 18/08/2026</td>
+            <td><span class="tag tag-gsc">API GSC</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION: TOTAIS CONSOLIDADOS -->
+  <div class="section">
+    <h2 class="section-title">6. Totais Consolidados (extraídos dos CSVs)</h2>
+    <p class="section-desc">Somas exatas calculadas a partir dos dados dos CSVs únicos.</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Métrica</th>
+            <th>Q1 (Jan-Mar)</th>
+            <th>Q2 (Abr-Jun)</th>
+            <th>Variação</th>
+            <th>Fonte CSV</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">Sessões totais</td>
+            <td class="metric-val">43.612</td>
+            <td class="metric-val">38.457</td>
+            <td style="color:var(--red);">-11,8%</td>
+            <td>Aquisição de tráfego</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Usuários novos</td>
+            <td class="metric-val">25.843</td>
+            <td class="metric-val">21.864</td>
+            <td style="color:var(--red);">-15,4%</td>
+            <td>Aquisição de usuários</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Leads</td>
+            <td class="metric-val">5.862</td>
+            <td class="metric-val">5.208</td>
+            <td style="color:var(--red);">-11,2%</td>
+            <td>Aquisição de leads</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Organic Search sessões</td>
+            <td class="metric-val">35.747</td>
+            <td class="metric-val">30.212</td>
+            <td style="color:var(--red);">-15,5%</td>
+            <td>Aquisição de tráfego</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Direct sessões</td>
+            <td class="metric-val">6.430</td>
+            <td class="metric-val">6.673</td>
+            <td style="color:var(--green);">+3,8%</td>
+            <td>Aquisição de tráfego</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Organic Social sessões</td>
+            <td class="metric-val">627</td>
+            <td class="metric-val">622</td>
+            <td style="color:var(--red);">-0,8%</td>
+            <td>Aquisição de tráfego</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Paid Social sessões</td>
+            <td class="metric-val">0</td>
+            <td class="metric-val">246</td>
+            <td style="color:var(--green);">novo</td>
+            <td>Aquisição de tráfego</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">AI Assistant sessões</td>
+            <td class="metric-val">0</td>
+            <td class="metric-val">103</td>
+            <td style="color:var(--green);">novo</td>
+            <td>Aquisição de tráfego</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Referral sessões</td>
+            <td class="metric-val">639</td>
+            <td class="metric-val">413</td>
+            <td style="color:var(--red);">-35,4%</td>
+            <td>Aquisição de tráfego</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FOOTNOTE -->
+  <div class="footnote">
+    <strong>Nota metodológica:</strong> Os dados do dashboard Jacuzzi são uma consolidação de 4 fontes: GA4 (tráfego, leads, comportamento), GSC (impressões, cliques, CTR, palavras-chave), CrUX (Core Web Vitals) e RD Station (vendas, receita por canal via MCP). Os períodos Q1 e Q2 têm dados completos nos CSVs. O Q3* é parcial (05/07–15/08 para leads semanais) — os números de sessões, tráfego por canal e participação da busca para Q3 foram obtidos de fontes externas a esta pasta. As duplicatas identificadas foram exportadas múltiplas vezes sem alteração e contam apenas uma vez nos totais.
+  </div>
+
+</div>
+</body>
+</html>
